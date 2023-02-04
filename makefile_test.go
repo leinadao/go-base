@@ -21,26 +21,26 @@ func TestMakefile(t *testing.T) {
 	}
 
 	testCases := map[string]testCase{
-		"version returns the current git describe tag if no VERSION environment variable is set": testCase{
+		"version returns the current git describe tag if no VERSION environment variable is set": {
 			executable: "make",
 			parameters: []string{"version"},
 			outputChecker: func(t *testing.T, got string) {
 				currentGitTag, err := exec.Command("git", "describe", "--tags", "--always").Output()
-				assert.NoError(t, err)
-				assert.Equal(t, string(currentGitTag), got, "make version")
+				assert.NoError(t, err, "Checking current git tag")
+				assert.Equal(t, string(currentGitTag), got, "'make version' output")
 			},
 		},
-		"version returns the VERSION environment variable when set": testCase{
+		"version returns the VERSION environment variable when set": {
 			withEnv: map[string]string{
 				"VERSION": "some-version",
 			},
 			executable: "make",
 			parameters: []string{"version"},
 			outputChecker: func(t *testing.T, got string) {
-				assert.Equal(t, "some-version\n", got, "make version")
+				assert.Equal(t, "some-version\n", got, "'make version' output")
 			},
 		},
-		"version returns git tag with v prefix stripped when in git tag": testCase{
+		"version returns git tag with v prefix stripped when in git tag": {
 			setup: func(t *testing.T) {
 				out, err := exec.Command("git", "tag", "v9999.9.9").Output()
 				assert.NoError(t, err, "Creating temp git tag - error")
@@ -49,7 +49,7 @@ func TestMakefile(t *testing.T) {
 			executable: "make",
 			parameters: []string{"version"},
 			outputChecker: func(t *testing.T, got string) {
-				assert.Equal(t, "9999.9.9\n", got, "make version")
+				assert.Equal(t, "9999.9.9\n", got, "'make version' output")
 			},
 			cleanup: func(t *testing.T) {
 				out, err := exec.Command("git", "tag", "-d", "v9999.9.9").Output()
@@ -57,14 +57,21 @@ func TestMakefile(t *testing.T) {
 				assert.Contains(t, string(out), "Deleted tag 'v9999.9.9' (was", "Clean up temp git tag - output")
 			},
 		},
-		"version returns environment variable VERSION with v prefix is not stripped from VERSION environment variable when set": testCase{
+		"version returns environment variable VERSION with v prefix is not stripped from VERSION environment variable when set": {
 			withEnv: map[string]string{
 				"VERSION": "v3.2.1",
 			},
 			executable: "make",
 			parameters: []string{"version"},
 			outputChecker: func(t *testing.T, got string) {
-				assert.Equal(t, "v3.2.1\n", got, "make version")
+				assert.Equal(t, "v3.2.1\n", got, "'make version' output")
+			},
+		},
+		"deps runs a go mod tidy": {
+			executable: "make",
+			parameters: []string{"deps"},
+			outputChecker: func(t *testing.T, got string) {
+				assert.Equal(t, "go mod tidy\n", got, "'make deps' output")
 			},
 		},
 	}
