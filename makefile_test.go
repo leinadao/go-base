@@ -9,16 +9,17 @@ import (
 )
 
 // TestMakefile tests the functionality of the Makefile.
+//
+// Not suitable for running parallel due to environment variable modification.
 func TestMakefile(t *testing.T) {
-	// Not suitable for running parallel due to environment variable modification.
-
-	// envNameTestMakefileRunning is the name of an environment variable set when this
-	// test is running which will prevent the test from recursively running whilst
-	// testing the makefile commands.
-	const envNameTestMakefileRunning = "TEST_MAKEFILE_RUNNING"
+	const (
+		// envNameTestMakefileRunning is the name of an environment variable set when this
+		// test is running which will prevent the test from recursively running whilst
+		// testing the makefile commands.
+		envNameTestMakefileRunning = "TEST_MAKEFILE_RUNNING"
+	)
 
 	if _, set := os.LookupEnv(envNameTestMakefileRunning); set != true {
-
 		type testCase struct {
 			setup         func(*testing.T)
 			withEnv       map[string]string
@@ -33,6 +34,7 @@ func TestMakefile(t *testing.T) {
 				executable: "make",
 				parameters: []string{"version"},
 				outputChecker: func(t *testing.T, got string) {
+					t.Helper()
 					currentGitTag, err := exec.Command("git", "describe", "--tags", "--always").Output()
 					assert.NoError(t, err, "Checking current git tag")
 					assert.Equal(t, string(currentGitTag), got, "'make version' output")
@@ -45,11 +47,13 @@ func TestMakefile(t *testing.T) {
 				executable: "make",
 				parameters: []string{"version"},
 				outputChecker: func(t *testing.T, got string) {
+					t.Helper()
 					assert.Equal(t, "some-version\n", got, "'make version' output")
 				},
 			},
 			"version returns git tag with v prefix stripped when in git tag": {
 				setup: func(t *testing.T) {
+					t.Helper()
 					out, err := exec.Command("git", "tag", "v9999.9.9").Output()
 					assert.NoError(t, err, "Creating temp git tag - error")
 					assert.Empty(t, out, "Creating temp git tag - output")
@@ -57,9 +61,11 @@ func TestMakefile(t *testing.T) {
 				executable: "make",
 				parameters: []string{"version"},
 				outputChecker: func(t *testing.T, got string) {
+					t.Helper()
 					assert.Equal(t, "9999.9.9\n", got, "'make version' output")
 				},
 				cleanup: func(t *testing.T) {
+					t.Helper()
 					out, err := exec.Command("git", "tag", "-d", "v9999.9.9").Output()
 					assert.NoError(t, err, "Clean up temp git tag - error")
 					assert.Contains(t, string(out), "Deleted tag 'v9999.9.9' (was", "Clean up temp git tag - output")
@@ -72,6 +78,7 @@ func TestMakefile(t *testing.T) {
 				executable: "make",
 				parameters: []string{"version"},
 				outputChecker: func(t *testing.T, got string) {
+					t.Helper()
 					assert.Equal(t, "v3.2.1\n", got, "'make version' output")
 				},
 			},
@@ -79,6 +86,7 @@ func TestMakefile(t *testing.T) {
 				executable: "make",
 				parameters: []string{"deps"},
 				outputChecker: func(t *testing.T, got string) {
+					t.Helper()
 					assert.Equal(t, "go mod tidy\n", got, "'make deps' output")
 				},
 			},
@@ -89,6 +97,7 @@ func TestMakefile(t *testing.T) {
 				executable: "make",
 				parameters: []string{"test"},
 				outputChecker: func(t *testing.T, got string) {
+					t.Helper()
 					assert.Regexp(t, "go test.", got, "'make test' output")
 				},
 			},
@@ -99,6 +108,7 @@ func TestMakefile(t *testing.T) {
 				executable: "make",
 				parameters: []string{"test"},
 				outputChecker: func(t *testing.T, got string) {
+					t.Helper()
 					assert.Regexp(t, "-tags [^-]*dynamic", got, "'make test' output")
 				},
 			},
@@ -109,6 +119,7 @@ func TestMakefile(t *testing.T) {
 				executable: "make",
 				parameters: []string{"test"},
 				outputChecker: func(t *testing.T, got string) {
+					t.Helper()
 					assert.Regexp(t, "-tags [^-]*unit", got, "'make test' output")
 				},
 			},
@@ -119,6 +130,7 @@ func TestMakefile(t *testing.T) {
 				executable: "make",
 				parameters: []string{"test"},
 				outputChecker: func(t *testing.T, got string) {
+					t.Helper()
 					assert.Regexp(t, "-count=[0-9]*", got, "'make test' output")
 				},
 			},
@@ -129,6 +141,7 @@ func TestMakefile(t *testing.T) {
 				executable: "make",
 				parameters: []string{"test"},
 				outputChecker: func(t *testing.T, got string) {
+					t.Helper()
 					assert.Contains(t, got, "-coverprofile coverage.out", "'make test' output")
 				},
 			},
@@ -139,6 +152,7 @@ func TestMakefile(t *testing.T) {
 				executable: "make",
 				parameters: []string{"test"},
 				outputChecker: func(t *testing.T, got string) {
+					t.Helper()
 					assert.Contains(t, got, "-covermode count", "'make test' output")
 				},
 			},
@@ -149,6 +163,7 @@ func TestMakefile(t *testing.T) {
 				executable: "make",
 				parameters: []string{"test"},
 				outputChecker: func(t *testing.T, got string) {
+					t.Helper()
 					goListCSV, err := exec.Command("bash", "-c", "go list ./... | tr '\n' ','").Output()
 					assert.NoError(t, err, "Checking go list expected output - error")
 
@@ -162,6 +177,7 @@ func TestMakefile(t *testing.T) {
 				executable: "make",
 				parameters: []string{"test"},
 				outputChecker: func(t *testing.T, got string) {
+					t.Helper()
 					assert.Contains(t, got, "-v", "'make test' output")
 				},
 			},
@@ -172,6 +188,7 @@ func TestMakefile(t *testing.T) {
 				executable: "make",
 				parameters: []string{"test"},
 				outputChecker: func(t *testing.T, got string) {
+					t.Helper()
 					assert.Regexp(t, `\Q./...\E`, got, "'make test' output")
 				},
 			},
@@ -181,6 +198,7 @@ func TestMakefile(t *testing.T) {
 			tn, tc := tName, tCase
 
 			t.Run(tn, func(t *testing.T) {
+				t.Helper()
 				// Not suitable for running parallel due to environment variable modification.
 				if tc.setup != nil {
 					tc.setup(t)
@@ -190,7 +208,7 @@ func TestMakefile(t *testing.T) {
 					t.Setenv(k, v)
 				}
 
-				got, err := exec.Command(tc.executable, tc.parameters...).Output()
+				got, err := exec.Command(tc.executable, tc.parameters...).Output() //nolint:gosec // Only test parameters.
 				assert.NoError(t, err)
 				tc.outputChecker(t, string(got))
 
