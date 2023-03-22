@@ -1,0 +1,155 @@
+linters:
+  disable-all: true
+  enable:
+    - asciicheck
+    - bidichk
+    - bodyclose
+    - containedctx
+    - contextcheck
+    - deadcode
+    - decorder
+    - depguard # TODO: Needs configuring.
+    - dogsled
+    - durationcheck
+    - errcheck
+    - errname
+    - errorlint
+    - execinquery
+    - exhaustive
+    - exportloopref
+    - forcetypeassert
+    - funlen
+    - gochecknoglobals
+    - gochecknoinits
+    - gocognit
+    - goconst
+    - gocyclo
+    - godot
+    - goerr113
+    - gofmt
+    - gofumpt
+    - goimports
+    - gomodguard # TODO: Needs configuring.
+    - gomnd
+    - gomoddirectives
+    - goprintffuncname
+    - gosec
+    - gosimple
+    - govet
+    - ifshort
+    - importas # TODO: Needs configuring.
+    - ineffassign
+    - ireturn
+    - lll
+    - maintidx
+    - makezero
+    - misspell
+    - nakedret
+    - nestif
+    - nilerr
+    - nilnil
+    - nlreturn
+    - noctx
+    - nolintlint
+    - prealloc
+    - predeclared
+    - revive
+    - rowserrcheck
+    - sqlclosecheck
+    - staticcheck
+    - structcheck
+    - tenv
+    - thelper
+    - unconvert
+    - unparam
+    - unused
+    - varcheck
+    - wastedassign
+    - whitespace
+    - wrapcheck
+    - wsl
+    #    - gocritic
+    #    - cyclop - Using gocyclo instead.
+    #    - dupl - Triggers on similar structured code as only looks at AST. Don't want to cause over-DRYing.
+    #    - errchkjson - Promotes skipping errors in certain scenarios. We were in favour of always checking encoding errors.
+    #    - exhaustruct - There are plenty of times when we want to fall back to the defaults set in the struct.
+    #    - forbidigo - Don't see any reason to disable print statements.
+    #    - gci -  It's not providing anything over goimports for us.
+    #    - godox - We have a lot of todos in the code at the moment. Prefer incomplete issues to be marked than not.
+    #    - goheader - Not required as we don't require licenses of our code.
+    #    - grouper - Covered by gofumpt.
+    #    - nonamedreturns - We like them sometimes.
+    #    - nosnakecase - Enable in next version (1.47).
+    #    - nosprintfhostport - Overkill.
+    #    - paralleltest - Enable for new services.
+    #    - promlinter - We don't use prometheus at the moment.
+    #    - scopelint - deprecated.
+    #    - stylecheck - Covered by revive.
+    #    - tagliatelle - Will break all apis etc. on enforcing formatting of json tags.
+    #    - testpackage - We want to be able to test private code too.
+    #    - tparallel - Enable for new services.
+    #    - varnamelen - Overkill for us.
+linters-settings:
+  decorder:
+    disable-dec-num-check: true
+    disable-dec-order-check: true
+  funlen:
+    lines: 100
+    statements: 50
+  goconst:
+    min-len: 2
+    min-occurrences: 2
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - experimental
+      - opinionated
+      - performance
+      - style
+  gocyclo:
+    min-complexity: 15
+  gofumpt:
+    extra-rules: true
+  goimports:
+    local-prefixes: gitlab.nonprod.internal.atomfintec.com
+  golint:
+    min-confidence: 0
+  gomnd:
+    ignored-functions:
+      - strconv.Parse*
+  govet:
+    check-shadowing: true
+  maligned:
+    suggest-new: true
+  misspell:
+    locale: US
+  nakedret:
+    max-func-lines: 1 # Never allow naked returns for readability.
+  nlreturn:
+    block-size: 2
+  revive: ## TODO: Not configured?
+    ignore-generated-header: true
+issues:
+  exclude-use-default: false
+  max-same-issues: 0
+  max-issues-per-linter: 0
+  exclude-rules:
+    # Exclude some linters from test code:
+    - path: _test.go
+      linters:
+        - containedctx # e.g. allowing putting contexts into test structs.
+        - dogsled # Blank identifiers can be desired in tests.
+        - funlen
+        - gochecknoinits # Cucumber tests running as go tests require init.
+        - gocyclo
+        - goerr113 #TODO: Correct Error format / Is checking. Surely want this?
+        - lll # TODO: REVIEW? Wanted?
+        - maintidx
+    # Exclude `lll` issues for long lines with `go:generate`:
+    - linters:
+        - lll
+      source: "^//go:generate "
+run:
+  timeout: 2m
+output:
+  sort-results: true
