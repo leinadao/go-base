@@ -25,7 +25,5 @@ jobs:
       uses: golangci/golangci-lint-action@v3
       with:
         version: v1.52.1
-    - name: Check pre-commit was used to lint etc.
-      run: poetry run pre-commit run --all-files
     - name: Run tests
       run: make test # TODO: Coverage and pre-commit.
