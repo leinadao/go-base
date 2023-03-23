@@ -11,6 +11,7 @@ import (
 // TestMakefile tests the functionality of the Makefile.
 //
 // Not suitable for running parallel due to environment variable modification.
+// --no-print-directory is used to resolve behavior when run in the pipeline.
 func TestMakefile(t *testing.T) {
 	const (
 		// envNameTestMakefileRunning is the name of an environment variable set when this
@@ -32,7 +33,7 @@ func TestMakefile(t *testing.T) {
 		testCases := map[string]testCase{
 			"version returns the current git describe tag if no VERSION environment variable is set": {
 				executable: "make",
-				parameters: []string{"version"},
+				parameters: []string{"--no-print-directory", "version"},
 				outputChecker: func(t *testing.T, got string) {
 					t.Helper()
 					currentGitTag, err := exec.Command("git", "describe", "--tags", "--always").Output()
@@ -45,7 +46,7 @@ func TestMakefile(t *testing.T) {
 					"VERSION": "some-version",
 				},
 				executable: "make",
-				parameters: []string{"version"},
+				parameters: []string{"--no-print-directory", "version"},
 				outputChecker: func(t *testing.T, got string) {
 					t.Helper()
 					assert.Equal(t, "some-version\n", got, "'make version' output")
@@ -59,7 +60,7 @@ func TestMakefile(t *testing.T) {
 					assert.Empty(t, out, "Creating temp git tag - output")
 				},
 				executable: "make",
-				parameters: []string{"version"},
+				parameters: []string{"--no-print-directory", "version"},
 				outputChecker: func(t *testing.T, got string) {
 					t.Helper()
 					assert.Equal(t, "9999.9.9\n", got, "'make version' output")
@@ -76,7 +77,7 @@ func TestMakefile(t *testing.T) {
 					"VERSION": "v3.2.1",
 				},
 				executable: "make",
-				parameters: []string{"version"},
+				parameters: []string{"--no-print-directory", "version"},
 				outputChecker: func(t *testing.T, got string) {
 					t.Helper()
 					assert.Equal(t, "v3.2.1\n", got, "'make version' output")
@@ -84,7 +85,7 @@ func TestMakefile(t *testing.T) {
 			},
 			"deps runs a go mod tidy command": {
 				executable: "make",
-				parameters: []string{"deps"},
+				parameters: []string{"--no-print-directory", "deps"},
 				outputChecker: func(t *testing.T, got string) {
 					t.Helper()
 					assert.Equal(t, "go mod tidy\n", got, "'make deps' output")
@@ -95,7 +96,7 @@ func TestMakefile(t *testing.T) {
 					envNameTestMakefileRunning: "true",
 				},
 				executable: "make",
-				parameters: []string{"test"},
+				parameters: []string{"--no-print-directory", "test"},
 				outputChecker: func(t *testing.T, got string) {
 					t.Helper()
 					assert.Regexp(t, "go test.", got, "'make test' output")
@@ -106,7 +107,7 @@ func TestMakefile(t *testing.T) {
 					envNameTestMakefileRunning: "true",
 				},
 				executable: "make",
-				parameters: []string{"test"},
+				parameters: []string{"--no-print-directory", "test"},
 				outputChecker: func(t *testing.T, got string) {
 					t.Helper()
 					assert.Regexp(t, "-tags [^-]*dynamic", got, "'make test' output")
@@ -117,7 +118,7 @@ func TestMakefile(t *testing.T) {
 					envNameTestMakefileRunning: "true",
 				},
 				executable: "make",
-				parameters: []string{"test"},
+				parameters: []string{"--no-print-directory", "test"},
 				outputChecker: func(t *testing.T, got string) {
 					t.Helper()
 					assert.Regexp(t, "-tags [^-]*unit", got, "'make test' output")
@@ -128,7 +129,7 @@ func TestMakefile(t *testing.T) {
 					envNameTestMakefileRunning: "true",
 				},
 				executable: "make",
-				parameters: []string{"test"},
+				parameters: []string{"--no-print-directory", "test"},
 				outputChecker: func(t *testing.T, got string) {
 					t.Helper()
 					assert.Regexp(t, "-count=[0-9]*", got, "'make test' output")
@@ -139,7 +140,7 @@ func TestMakefile(t *testing.T) {
 					envNameTestMakefileRunning: "true",
 				},
 				executable: "make",
-				parameters: []string{"test"},
+				parameters: []string{"--no-print-directory", "test"},
 				outputChecker: func(t *testing.T, got string) {
 					t.Helper()
 					assert.Contains(t, got, "-coverprofile coverage.out", "'make test' output")
@@ -150,7 +151,7 @@ func TestMakefile(t *testing.T) {
 					envNameTestMakefileRunning: "true",
 				},
 				executable: "make",
-				parameters: []string{"test"},
+				parameters: []string{"--no-print-directory", "test"},
 				outputChecker: func(t *testing.T, got string) {
 					t.Helper()
 					assert.Contains(t, got, "-covermode count", "'make test' output")
@@ -161,7 +162,7 @@ func TestMakefile(t *testing.T) {
 					envNameTestMakefileRunning: "true",
 				},
 				executable: "make",
-				parameters: []string{"test"},
+				parameters: []string{"--no-print-directory", "test"},
 				outputChecker: func(t *testing.T, got string) {
 					t.Helper()
 					goListCSV, err := exec.Command("bash", "-c", "go list ./... | tr '\n' ','").Output()
@@ -175,7 +176,7 @@ func TestMakefile(t *testing.T) {
 					envNameTestMakefileRunning: "true",
 				},
 				executable: "make",
-				parameters: []string{"test"},
+				parameters: []string{"--no-print-directory", "test"},
 				outputChecker: func(t *testing.T, got string) {
 					t.Helper()
 					assert.Contains(t, got, "-v", "'make test' output")
@@ -186,7 +187,7 @@ func TestMakefile(t *testing.T) {
 					envNameTestMakefileRunning: "true",
 				},
 				executable: "make",
-				parameters: []string{"test"},
+				parameters: []string{"--no-print-directory", "test"},
 				outputChecker: func(t *testing.T, got string) {
 					t.Helper()
 					assert.Regexp(t, `\Q./...\E`, got, "'make test' output")
