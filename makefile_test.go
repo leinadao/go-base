@@ -32,6 +32,9 @@ func TestMakefile(t *testing.T) {
 
 		testCases := map[string]testCase{
 			"version returns the current git describe tag if no VERSION environment variable is set": {
+				withEnv: map[string]string{
+					"VERSION": "",
+				},
 				executable: "make",
 				parameters: []string{"--no-print-directory", "version"},
 				outputChecker: func(t *testing.T, got string) {
@@ -53,6 +56,9 @@ func TestMakefile(t *testing.T) {
 				},
 			},
 			"version returns git tag with v prefix stripped when in git tag": {
+				withEnv: map[string]string{
+					"VERSION": "",
+				},
 				setup: func(t *testing.T) {
 					t.Helper()
 					out, err := exec.Command("git", "tag", "v9999.9.9").Output()
