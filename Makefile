@@ -4,7 +4,7 @@ GO_CKG_TAGS ?= dynamic
 .PHONY: version deps test
 
 version: ## Determine and output current version.
-	@[[ -z "${VERSION}" ]] && git describe --tags --always | sed 's/v//' || echo $(VERSION)
+	@[ -z $(VERSION) ] && git describe --tags --always | sed 's/v//' || echo "$(VERSION)"
 
 deps: ## Sync dependencies.
 	go mod tidy
