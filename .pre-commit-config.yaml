@@ -1,0 +1,39 @@
+default_language_version:
+  python: python3
+  golang: 1.19.5
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+    -   id: check-added-large-files
+    -   id: check-case-conflict
+    -   id: check-executables-have-shebangs
+    -   id: check-shebang-scripts-are-executable
+    -   id: check-json
+    -   id: check-merge-conflict
+    -   id: check-symlinks
+    -   id: check-toml
+    -   id: check-vcs-permalinks
+    -   id: check-xml
+    -   id: check-yaml
+    -   id: destroyed-symlinks
+    -   id: detect-aws-credentials
+        args: [--allow-missing-credentials]
+    -   id: detect-private-key
+    -   id: fix-byte-order-marker
+    -   id: mixed-line-ending
+    -   id: no-commit-to-branch
+        args: [--branch, main, --branch, master, --branch, production, --branch, staging]
+    -   id: pretty-format-json
+- repo: https://github.com/dnephin/pre-commit-golang
+  rev: v0.5.1
+  hooks:
+    - id: go-generate
+    - id: go-mod-tidy
+    - id: golangci-lint
+    - id: go-unit-tests
+    # - id: go-build ## TODO: REVIEW
+# -   repo: https://github.com/mrtazz/checkmake.git
+#     rev: 0.2.2
+#     hooks:
+#     -   id: checkmake ## TODO: REVIEW

@@ -11,6 +11,35 @@ permissions:
 
 jobs:
   lint:
+    name: "Lint"
+    runs-on: ubuntu-latest
+      # Ignore no-commit-to-branch as GitHub merges and manually allowed force pushes should pass.
+      # GitHub branch protection should be used to protect main in GitHub instead.
+      # The check prevents incorrect commits locally.
+      # Skip go-unit-tests as we have a separate test job.
+      # This check encourages only commiting working states.
+    env:
+      SKIP: no-commit-to-branch,go-unit-tests
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version-file: 'go.mod'
+        cache: true
+        cache-dependency-path: go.sum
+    - name: Install python (cached)
+      uses: actions/setup-python@v4
+      with:
+        python-version: '^3.11.1'
+        cache: 'pip'
+        cache-dependency-path: .pre-commit-config.yaml
+    - uses: pre-commit/action@v3.0.0
+      with:
+        extra_args: --all-files
+  test:
+    name: "Unit test"
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
@@ -21,9 +50,5 @@ jobs:
         go-version-file: 'go.mod'
         cache: true
         cache-dependency-path: go.sum
-    - name: golangci-lint
-      uses: golangci/golangci-lint-action@v3
-      with:
-        version: v1.52.1
     - name: Run tests
-      run: make test # TODO: Coverage and pre-commit.
+      run: make test # TODO: Coverage.
